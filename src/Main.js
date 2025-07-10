@@ -1,16 +1,43 @@
 import React, {useEffect, useRef, useState} from "react";
 import OpenAI from "openai";
-const client = new OpenAI();
+
 export default function Main(){
     const [userChat, setUserChat] = useState('');
-    const [aiChat, setAiChat] = useState('');
+    const [messages, setMessages] = useState([]);
     const inputRef = useRef(null);
     useEffect(() => {
         inputRef.current.focus();
     }, []);
 
-    function aiFetch() {
+    async function aiFetch(text) {
+        const client = new OpenAI({
+            apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+            dangerouslyAllowBrowser:true
+        });
 
+        const response = await client.chat.completions.create({
+            model: "gpt-4",
+            messages: [
+                {
+                    role: "system",
+                    content: "you are a multi lingual translator"
+                },
+                {
+                    role: "user",
+                    content: text
+                }
+            ]
+
+        })
+        return (response.choices[0].message.content)
+    }
+    async function handleSubmit(e){
+        e.preventDefault();
+        if (!userChat.trim()) return;
+        setMessages(msgs => [...msgs, { from: "You", text: userChat }]);
+        setUserChat("");
+        const aiText = await aiFetch(userChat);
+        setMessages(msgs => [...msgs, { from: "AI", text: aiText }]);
     }
     return(
         <div className="h-screen w-screen flex items-center justify-center bg-gray-300">
@@ -26,44 +53,27 @@ export default function Main(){
                 </div>
 
                 <div className="flex-1 pr-4 overflow-y-auto space-y-4 text-sm text-gray-700">
-                    <div className="flex gap-3">
-            <span className="w-8 h-8 rounded-full bg-gray-100 border p-1 flex items-center justify-center">
-              <svg stroke="none" fill="black" strokeWidth="1.5" viewBox="0 0 24 24" height="20" width="20">
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
-                />
-              </svg>
-            </span>
-                        <p>
-                            <strong>AI:</strong> Hi, how can I help you today?
-                        </p>
-                    </div>
-
-                    <div className="flex gap-3">
-            <span className="w-8 h-8 rounded-full bg-gray-100 border p-1 flex items-center justify-center">
-              <svg stroke="none" fill="black" strokeWidth="0" viewBox="0 0 16 16" height="20" width="20">
-                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" />
-              </svg>
-            </span>
-                        <p>
-                            <strong>You:</strong> fewafef
-                        </p>
-                    </div>
+                    {messages.map((m, i) => (
+                        <div key={i} className="flex gap-3">
+      <span className="w-8 h-8 rounded-full bg-gray-100 border p-1 flex items-center justify-center">
+        {m.from === "AI" ? "🤖" : "🧑"}
+      </span>
+                            <p>
+                                <strong>{m.from}:</strong> {m.text}
+                            </p>
+                        </div>
+                    ))}
                 </div>
-
-                <form className="flex items-center gap-2 pt-4">
+                <form onSubmit={handleSubmit} className="flex items-center gap-2 pt-4">
                     <input
                         ref={inputRef}
                         value={userChat}
-                        onChange={setUserChat(e.target.value)}
+                        onChange={e => setUserChat(e.target.value)}
                         type="text"
-                        placeholder="Type the text you would like trabslated!"
-                        defaultValue=""
+                        placeholder="Type the text you would like translated!"
                         className="flex-grow h-10 rounded-md border px-3 text-sm focus:ring-2 focus:ring-gray-400"
                     />
-                    <button onClick={run function here} type="submit" className="bg-black text-white h-10 px-4 rounded-md hover:bg-gray-800">
+                    <button type="submit" className="bg-black text-white h-10 px-4 rounded-md hover:bg-gray-800">
                         Send
                     </button>
                 </form>
