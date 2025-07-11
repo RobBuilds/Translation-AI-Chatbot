@@ -10,7 +10,7 @@ export default function Main(){
     }, []);
 
     async function aiFetch(text){
-        const res = await fetch("https://openai-worker-new.p-ai-translation.workers.dev", {
+        const res = await fetch("https://openai-worker-new.p-ai-translation.workers.dev/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: text })
