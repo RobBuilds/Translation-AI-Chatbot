@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import OpenAI from "openai";
+
 
 export default function Main(){
     const [userChat, setUserChat] = useState('');
