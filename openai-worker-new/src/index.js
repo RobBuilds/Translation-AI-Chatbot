@@ -13,7 +13,13 @@ export default {
 			});
 	}
 		if (request.method !== "POST") {
-			return new Response("Method not allowed", {status: 405});
+			return new Response("Method not allowed", {status: 405,
+				headers: {
+					"Access-Control-Allow-Origin": "*",
+					"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+					"Access-Control-Allow-Headers": "Content-Type",
+				},
+			});
 		}
 		const { message } = await request.json();
 		const client = new OpenAI({
@@ -40,7 +46,9 @@ export default {
 		}), {
 			headers: {
 				"Content-Type": "application/json",
-				"Access-Control-Allow-Origin": "*"
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+				"Access-Control-Allow-Headers": "Content-Type",
 			}
 		});
 
