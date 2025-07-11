@@ -9,28 +9,37 @@ export default function Main(){
         inputRef.current.focus();
     }, []);
 
-    async function aiFetch(text) {
-        const client = new OpenAI({
-            apiKey: process.env.REACT_APP_OPENAI_API_KEY,
-            dangerouslyAllowBrowser:true
+    async function aiFetch(text){
+        const res = await fetch("https://openai-worker-new.p-ai-translation.workers.dev", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text })
         });
-
-        const response = await client.chat.completions.create({
-            model: "gpt-4",
-            messages: [
-                {
-                    role: "system",
-                    content: "you are a multi lingual translator"
-                },
-                {
-                    role: "user",
-                    content: text
-                }
-            ]
-
-        })
-        return (response.choices[0].message.content)
+        const { reply } = await res.json();
+        return reply;
     }
+    // async function aiFetch(text) {
+    //     const client = new OpenAI({
+    //         apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+    //         dangerouslyAllowBrowser:true
+    //     });
+    // //
+    //     const response = await client.chat.completions.create({
+    //         model: "gpt-4",
+    //         messages: [
+    //             {
+    //                 role: "system",
+    //                 content: "you are a multi lingual translator"
+    //             },
+    //             {
+    //                 role: "user",
+    //                 content: text
+    //             }
+    //         ]
+    //
+    //     })
+    //     return (response.choices[0].message.content)
+    // }
     async function handleSubmit(e){
         e.preventDefault();
         if (!userChat.trim()) return;
